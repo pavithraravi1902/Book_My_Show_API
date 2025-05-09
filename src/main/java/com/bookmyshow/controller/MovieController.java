@@ -3,13 +3,15 @@ package com.bookmyshow.controller;
 import com.bookmyshow.model.Movie;
 import com.bookmyshow.service.MovieService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/movies")
-@CrossOrigin(origins = "http://localhost:3000") // Allow React frontend
+@CrossOrigin(origins = "http://localhost:3000")
 public class MovieController {
 
     @Autowired
@@ -22,7 +24,7 @@ public class MovieController {
 
     @GetMapping("/{id}")
     public Movie getMovieById(@PathVariable Long id) {
-        return movieService.getMovieById(id).orElseThrow(() -> new RuntimeException("Movie not found"));
+        return movieService.getMovieById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Movie not found"));
     }
 
     @PostMapping

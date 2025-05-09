@@ -46,7 +46,7 @@ public class ShowService {
         show.setMovie(movie);
         show.setTheatre(theatre);
         show.setShowTime(showRequest.getShowTime());
-        show.setPrice(BigDecimal.valueOf(showRequest.getPrice()));
+        show.setPrice(showRequest.getPrice());
 
         return showRepository.save(show);
     }

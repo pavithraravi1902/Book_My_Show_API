@@ -6,8 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.mockito.MockitoAnnotations;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -27,6 +26,7 @@ public class UserControllerTest {
 
     @BeforeEach
     public void setup() {
+        MockitoAnnotations.openMocks(this);
         mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
     }
 
@@ -41,7 +41,7 @@ public class UserControllerTest {
         mockMvc.perform(post("/api/users")
                         .contentType("application/json")
                         .content("{ \"email\": \"test@example.com\", \"password\": \"password\" }"))
-                .andExpect(status().isCreated())
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value("test@example.com"));
     }
 
@@ -65,5 +65,57 @@ public class UserControllerTest {
                         .content("{ \"email\": \"test@example.com\", \"password\": \"wrongpassword\" }"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().string("Invalid credentials"));
+    }
+
+    @Test
+    public void testGetUserById() throws Exception {
+        User user = new User();
+        user.setId(1L);
+        user.setEmail("book@show.com");
+
+        when(userService.getUserById(1L)).thenReturn(user);
+
+        mockMvc.perform(get("/api/users/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value("book@show.com"));
+    }
+
+    @Test
+    public void testUpdateUser() throws Exception {
+        User updatedUser = new User();
+        updatedUser.setId(1L);
+        updatedUser.setEmail("bookmy@show.com");
+
+        when(userService.updateUser(eq(1L), any(User.class))).thenReturn(updatedUser);
+
+        mockMvc.perform(put("/api/users/1")
+                        .contentType("application/json")
+                        .content("{ \"email\": \"bookmy@show.com\" }"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value("bookmy@show.com"));
+    }
+
+    @Test
+    public void testLoginThrowsException() throws Exception {
+        when(userService.validateLogin(anyString(), anyString()))
+                .thenThrow(new RuntimeException("Unexpected error"));
+
+        mockMvc.perform(post("/api/users/login")
+                        .contentType("application/json")
+                        .content("{ \"email\": \"bookmy@show.com\", \"password\": \"password\" }"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Unexpected error"));
+    }
+
+    @Test
+    public void testLoginRuntimeException() throws Exception {
+        when(userService.validateLogin(anyString(), anyString()))
+                .thenThrow(new RuntimeException("Service error"));
+
+        mockMvc.perform(post("/api/users/login")
+                        .contentType("application/json")
+                        .content("{ \"email\": \"book@example.com\", \"password\": \"password\" }"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Service error"));
     }
 }

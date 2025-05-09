@@ -12,7 +12,6 @@ import java.util.List;
 @RequestMapping("/api/bookings")
 @CrossOrigin(origins = "http://localhost:3000")
 public class BookingController {
-
     @Autowired
     private BookingService bookingService;
 
@@ -35,5 +34,4 @@ public class BookingController {
     public void deleteBooking(@PathVariable Long id) {
         bookingService.deleteBooking(id);
     }
-
 }

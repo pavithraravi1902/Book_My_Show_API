@@ -22,10 +22,12 @@ public class SpringSecurityConfig {
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable())  // Disabling CSRF
-                .authorizeHttpRequests((authorize) -> {
-                    authorize.anyRequest().authenticated();
-                }).httpBasic(Customizer.withDefaults());
+        http.csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        //.requestMatchers("/api/bookings/**").hasRole("USER")
+                        .anyRequest().hasRole("ADMIN")
+                )
+                .httpBasic(Customizer.withDefaults());
         return http.build();
     }
 

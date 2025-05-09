@@ -16,5 +16,4 @@ public class BookingRequest {
     private BigDecimal totalAmount;
     private Long userId;
     private Long showId;
-    private List<Long> seatIds;
 }
